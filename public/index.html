@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L7 Dstat</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+</head>
+<body>
+    <div id="chart" style="width: 80vw; height: 60vh; margin: 20vh auto;"></div>
+
+    <script>
+        const chart = echarts.init(document.getElementById('chart'));
+
+        const option = {
+            title: {
+                text: 'Total Requests per Second',
+            },
+            legend: {
+                data: ['Requests per Second'],
+            },
+            xAxis: {
+                type: 'category',
+                data: [],
+            },
+            yAxis: {
+                type: 'value',
+            },
+            series: [{
+                name: 'Requests per Second', 
+                type: 'line',
+                smooth: false,
+                data: [],
+            }],
+        };
+
+        chart.setOption(option);
+
+        setInterval(() => {
+            fetch('/api/totalReqCount')
+                .then(response => response.json())
+                .then(data => {
+                    const now = new Date();
+                    const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+                    option.xAxis.data.push(time);
+                    option.series[0].data.push(data.totalReqCount);
+                    chart.setOption(option, true);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }, 1000);
+    </script>
+</body>
+</html>
